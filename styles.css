@@ -1,0 +1,249 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 100px 0 0 0;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #060806;
+    color: white;
+  }
+  
+  #content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  ul {
+    list-style-type: none;
+  }
+  
+  .artist-container {
+    margin: 10px;
+    padding: 20px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    transition: transform 0.2s;
+  }
+  
+  .artist-container:hover {
+    transform: scale(1.05);
+  }
+  
+  .artist-container img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+  }
+  
+  .artist-container:hover img {
+    transform: rotate(360deg);
+    cursor: pointer;
+  }
+  
+  .artist-container h2 {
+    margin: 0;
+    color: #00ff00;
+  }
+  
+  .heart-icon {
+    font-size: 24px;
+    cursor: pointer;
+    color: red;
+    margin-top: 5px;
+    margin-right: 10px;
+  }
+  
+  .heart-icon.pulsate {
+    animation: pulsate 0.5s infinite;
+  }
+  
+  @keyframes pulsate {
+    0% {
+      transform: scale(1);
+      color: red;
+      text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px red;
+    }
+    50% {
+      transform: scale(1.2);
+      color: pink;
+      text-shadow: 0 0 20px pink, 0 0 30px pink, 0 0 40px pink;
+    }
+    100% {
+      transform: scale(1);
+      color: red;
+      text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px red;
+    }
+  }
+  
+  .search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 20px;
+  }
+  
+  #searchInput {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #00ff00;
+    text-align: center;
+    font-weight: bold;
+    background-color: black;
+    color: #00ff00;
+    margin-bottom: 10px;
+  }
+  
+  #searchInput:focus {
+    outline: none;
+    border-color: #ff00ff;
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+  }
+  
+  #searchInput::placeholder {
+    color: #999;
+    font-style: italic;
+  }
+  
+  #searchButton {
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #00ff00;
+    color: black;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+  }
+  
+  #searchButton:hover {
+    background-color: #ff00ff;
+  }
+  
+  .neon-header {
+    font-size: 4em;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+    animation: neonGlow 1s ease-in-out infinite alternate;
+    width: 100vw;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .subheading {
+    color: white;
+    font-size: larger;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  }
+  
+  @keyframes neonGlow {
+    from {
+      text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+    }
+    to {
+      text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+    }
+  }
+  
+  button {
+    transition: transform 0.2s;
+    animation: pulsate 1s infinite, colorChange 3s infinite;
+  }
+  
+  button:hover {
+    transform: scale(1.1);
+  }
+  
+  button:active {
+    transform: translateY(2px);
+    animation: shake 0.5s;
+  }
+  
+  @keyframes pulsate {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes colorChange {
+    0% {
+      background-color: #00ff00;
+    }
+    50% {
+      background-color: #ff00ff;
+    }
+    100% {
+      background-color: #00ff00;
+    }
+  }
+  
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
+  #suggestions {
+    border: 1px solid #00ff00;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    z-index: 1000;
+    color: #00ff00;
+  }
+  
+  .suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .suggestion-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .album-cover {
+    width: 100px;
+    height: 100px;
+    margin: 10px 0;
+  }
+  
