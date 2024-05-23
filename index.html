@@ -7,20 +7,24 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="particle-canvas"></div>
     <div class="header-container">
         <div class="neon-header">ArtistHub</div>
         <p class="subheading">Select Artist To View Albums And Tracks</p>
     </div>
-
     <div id="content"></div>
     <div class="search-container">
         <input list="suggestions" id="searchInput" placeholder="Search for an artist">
         <datalist id="suggestions"></datalist>
         <button id="searchButton">Search Artist</button>
     </div>
-
-    <button id="toggleButton">Toggle Light/Dark Mode</button>
-
+    <button id="toggleButton">Toggle Mode</button>
     <script type="module" src="index.js"></script>
+    <script src="libs/particles.min.js"></script>
+    <script>
+        particlesJS.load('particle-canvas', 'particles.json', function() {
+            console.log('particles.js loaded - callback');
+        });
+    </script>
 </body>
 </html>

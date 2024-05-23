@@ -13,13 +13,14 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   color: white;
+  transition: background-image 0.5s ease-in-out, color 0.5s ease-in-out;
 }
 
 body.light-mode {
-  background-image:url(photos/pexels-jessica-lewis-2918997.jpg);
+  background-image: url(photos/pexels-jessica-lewis-2918997.jpg);
   background-repeat: no-repeat;
   background-size: cover;
-  color: black;
+  color: #333;
 }
 
 .neon-header {
@@ -36,8 +37,8 @@ body.light-mode {
 }
 
 .light-mode .neon-header {
-  color: #333;
-  text-shadow: 0 0 10px #999, 0 0 20px #999, 0 0 30px #999;
+  color: #444;
+  text-shadow: 0 0 10px #aaa, 0 0 20px #aaa, 0 0 30px #aaa;
 }
 
 .subheading {
@@ -47,8 +48,8 @@ body.light-mode {
 }
 
 .light-mode .subheading {
-  color: #333;
-  text-shadow: 0 0 10px #999, 0 0 20px #999, 0 0 30px #999;
+  color: #666;
+  text-shadow: 0 0 10px #bbb, 0 0 20px #bbb, 0 0 30px #bbb;
 }
 
 #content {
@@ -68,24 +69,27 @@ ul {
   margin: 10px;
   padding: 20px;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-  transition: transform 0.2s, background-color 0.2s;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .light-mode .artist-container {
-  background-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.7);
   color: #333;
+  box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
 }
 
 .artist-container:hover {
   transform: scale(1.05);
-  background-color: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
 }
 
 .light-mode .artist-container:hover {
-  background-color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 15px rgba(100, 100, 100, 0.7);
 }
 
 .artist-container img {
@@ -108,7 +112,7 @@ ul {
 }
 
 .light-mode .artist-container h2 {
-  color: #333;
+  color: #444;
 }
 
 .heart-icon {
@@ -117,10 +121,15 @@ ul {
   color: red;
   margin-top: 5px;
   margin-right: 10px;
+  transition: transform 0.2s;
 }
 
 .heart-icon.pulsate {
   animation: pulsate 0.5s infinite;
+}
+
+.heart-icon:hover {
+  transform: scale(1.2);
 }
 
 @keyframes pulsate {
@@ -149,6 +158,7 @@ ul {
   width: 100%;
   max-width: 300px;
   margin-top: 20px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 #searchInput {
@@ -185,6 +195,10 @@ ul {
   font-style: italic;
 }
 
+.light-mode #searchInput::placeholder {
+  color: #666;
+}
+
 #searchButton {
   padding: 10px 20px;
   border-radius: 5px;
@@ -192,7 +206,7 @@ ul {
   color: black;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
   width: 100%;
 }
 
@@ -207,6 +221,7 @@ ul {
 
 .light-mode #searchButton:hover {
   background-color: #999;
+  color: #fff;
 }
 
 .neon-header {
@@ -444,4 +459,35 @@ button:active {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.light-mode #toggleButton {
+  background-color: #fff;
+  color: #333;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 10px;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+  background: #666;
+}
+
+/* Particle effects */
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
 }
