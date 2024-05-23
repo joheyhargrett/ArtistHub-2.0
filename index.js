@@ -81,6 +81,19 @@ const fetchArtistGenre = async (artistId, artistContainer) => {
   } else {
     genresContainer.textContent = "No genre available";
   }
+
+  // Artist social links
+  const socialLinks = document.createElement("div");
+  socialLinks.classList.add("social-links");
+  artistInfo.external_urls && Object.keys(artistInfo.external_urls).forEach(platform => {
+    const link = document.createElement("a");
+    link.href = artistInfo.external_urls[platform];
+    link.target = "_blank";
+    link.textContent = platform === "spotify" ? "Follow Artist on Spotify" : platform;
+    socialLinks.appendChild(link);
+  });
+
+  artistContainer.appendChild(socialLinks);
 };
 
 const fetchArtist = async (artist) => {
@@ -106,12 +119,19 @@ const fetchArtist = async (artist) => {
   artistName.textContent = artist.name;
 
   const heartIcon = document.createElement("span");
-  heartIcon.className = "heart-icon";
+  heartIcon.className = "heart-icon tooltip";
   heartIcon.innerHTML = isArtistHearted(artist.id) ? "❤️" : "🤍";
   if (isArtistHearted(artist.id)) {
     heartIcon.classList.add("pulsate");
   }
-  heartIcon.addEventListener("click", () => toggleHeart(artist.id));
+  const tooltipText = document.createElement("span");
+  tooltipText.className = "tooltiptext";
+  tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
+  heartIcon.appendChild(tooltipText);
+  heartIcon.addEventListener("click", () => {
+    toggleHeart(artist.id);
+    tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
+  });
 
   const resetButton = document.createElement("button");
   resetButton.textContent = "Reset";
@@ -139,6 +159,7 @@ const showAlbumDropdown = async (artistId) => {
 
   const albumDropdown = document.createElement("select");
   albumDropdown.id = `albumDropdown-${artistId}`;
+  albumDropdown.classList.add("album-dropdown");
 
   const defaultOption = document.createElement("option");
   defaultOption.textContent = "Select an Album";
@@ -222,17 +243,28 @@ const fetchAlbumTracks = async (albumId, trackListContainer) => {
   renderTrackList(
     albumTracks.items,
     trackListContainer,
-    albumInfo.images[1].url
+    albumInfo.images[1].url,
+    albumInfo.release_date,
+    albumInfo.total_tracks
   );
 };
 
-const renderTrackList = (tracks, trackListContainer, albumCoverUrl) => {
+const renderTrackList = (tracks, trackListContainer, albumCoverUrl, releaseDate, totalTracks) => {
   const trackList = document.createElement("ul");
+  trackList.classList.add("track-list");
 
   const albumCover = document.createElement("img");
   albumCover.src = albumCoverUrl;
   albumCover.classList.add("album-cover");
   trackListContainer.appendChild(albumCover);
+
+  const albumDetails = document.createElement("div");
+  albumDetails.classList.add("album-details");
+  albumDetails.innerHTML = `
+    <p>Release Date: ${releaseDate}</p>
+    <p>Total Tracks: ${totalTracks}</p>
+  `;
+  trackListContainer.appendChild(albumDetails);
 
   tracks.forEach((track, index) => {
     const listItem = document.createElement("li");
@@ -334,3 +366,4 @@ function updateHeartedArtists(artistId, hearted) {
 }
 
 renderPage();
+
