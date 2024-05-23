@@ -73,6 +73,8 @@ ul {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  flex: 1 0 21%; /* This makes the artist containers take up about 21% of the width each */
+  box-sizing: border-box; /* Ensures padding and border are included in the width calculation */
 }
 
 .light-mode .artist-container {
@@ -222,34 +224,6 @@ ul {
 .light-mode #searchButton:hover {
   background-color: #999;
   color: #fff;
-}
-
-.neon-header {
-  font-size: 4em;
-  color: #00ff00;
-  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-  animation: neonGlow 1s ease-in-out infinite alternate;
-  width: 100vw;
-  text-align: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-
-.subheading {
-  color: white;
-  font-size: larger;
-  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-}
-
-@keyframes neonGlow {
-  from {
-    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
-  }
-  to {
-    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-  }
 }
 
 button {
