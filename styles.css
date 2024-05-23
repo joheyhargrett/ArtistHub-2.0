@@ -9,10 +9,46 @@ body {
   padding: 100px 0 0 0;
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-image: url(https://images.pexels.com/photos/3784221/pexels-photo-3784221.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1);
+  background-image: url('https://images.pexels.com/photos/3784221/pexels-photo-3784221.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
   background-repeat: no-repeat;
-  background-size: cover; /* Cover the entire background */
+  background-size: cover;
   color: white;
+}
+
+body.light-mode {
+  background-image:url(photos/pexels-jessica-lewis-2918997.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: black;
+}
+
+.neon-header {
+  font-size: 4em;
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+  animation: neonGlow 1s ease-in-out infinite alternate;
+  width: 100vw;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.light-mode .neon-header {
+  color: #333;
+  text-shadow: 0 0 10px #999, 0 0 20px #999, 0 0 30px #999;
+}
+
+.subheading {
+  color: white;
+  font-size: larger;
+  text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+}
+
+.light-mode .subheading {
+  color: #333;
+  text-shadow: 0 0 10px #999, 0 0 20px #999, 0 0 30px #999;
 }
 
 #content {
@@ -38,9 +74,18 @@ ul {
   transition: transform 0.2s, background-color 0.2s;
 }
 
+.light-mode .artist-container {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #333;
+}
+
 .artist-container:hover {
   transform: scale(1.05);
   background-color: rgba(0, 0, 0, 0.9);
+}
+
+.light-mode .artist-container:hover {
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .artist-container img {
@@ -60,6 +105,10 @@ ul {
 .artist-container h2 {
   margin: 0;
   color: #00ff00;
+}
+
+.light-mode .artist-container h2 {
+  color: #333;
 }
 
 .heart-icon {
@@ -114,10 +163,21 @@ ul {
   margin-bottom: 10px;
 }
 
+.light-mode #searchInput {
+  background-color: white;
+  color: #333;
+  border: 1px solid #333;
+}
+
 #searchInput:focus {
   outline: none;
   border-color: #ff00ff;
   box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+}
+
+.light-mode #searchInput:focus {
+  border-color: #666;
+  box-shadow: 0 0 5px rgba(102, 102, 102, 0.5);
 }
 
 #searchInput::placeholder {
@@ -136,8 +196,17 @@ ul {
   width: 100%;
 }
 
+.light-mode #searchButton {
+  background-color: #666;
+  color: white;
+}
+
 #searchButton:hover {
   background-color: #ff00ff;
+}
+
+.light-mode #searchButton:hover {
+  background-color: #999;
 }
 
 .neon-header {
@@ -235,6 +304,11 @@ button:active {
   color: #00ff00;
 }
 
+.light-mode #suggestions {
+  background-color: white;
+  color: #333;
+}
+
 .suggestion-item {
   padding: 8px;
   cursor: pointer;
@@ -257,13 +331,21 @@ button:active {
   transition: color 0.2s;
 }
 
-.social-links a:hover {
-  color: #ff00ff;
+.light-mode .social-links a {
+  color: #333;
+}
+
+.light-mode .social-links a:hover {
+  color: #666;
 }
 
 .album-details {
   margin-top: 10px;
   color: #00ff00;
+}
+
+.light-mode .album-details {
+  color: #333;
 }
 
 .track-list {
@@ -294,6 +376,12 @@ button:active {
   animation: dropdownSlideIn 0.5s ease-in-out;
 }
 
+.light-mode .album-dropdown {
+  background-color: white;
+  color: #333;
+  border: 1px solid #333;
+}
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -309,11 +397,16 @@ button:active {
   padding: 5px;
   position: absolute;
   z-index: 1;
-  bottom: 125%; /* Position above the element */
+  bottom: 125%;
   left: 50%;
   margin-left: -60px;
   opacity: 0;
   transition: opacity 0.3s;
+}
+
+.light-mode .tooltip .tooltiptext {
+  background-color: white;
+  color: #333;
 }
 
 .tooltip:hover .tooltiptext {
@@ -339,4 +432,16 @@ button:active {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+#toggleButton {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }

@@ -48,11 +48,11 @@ const toggleHeart = (artistId) => {
   if (isLiked) {
     updateHeartedArtists(artistId, false);
     heartIcon.innerHTML = "🤍";
-    heartIcon.classList.remove("pulsate"); // Remove the pulsating effect
+    heartIcon.classList.remove("pulsate");
   } else {
     updateHeartedArtists(artistId, true);
     heartIcon.innerHTML = "❤️";
-    heartIcon.classList.add("pulsate"); // Add the pulsating effect
+    heartIcon.classList.add("pulsate");
   }
 };
 
@@ -82,16 +82,17 @@ const fetchArtistGenre = async (artistId, artistContainer) => {
     genresContainer.textContent = "No genre available";
   }
 
-  // Artist social links
   const socialLinks = document.createElement("div");
   socialLinks.classList.add("social-links");
-  artistInfo.external_urls && Object.keys(artistInfo.external_urls).forEach(platform => {
-    const link = document.createElement("a");
-    link.href = artistInfo.external_urls[platform];
-    link.target = "_blank";
-    link.textContent = platform === "spotify" ? "Follow Artist on Spotify" : platform;
-    socialLinks.appendChild(link);
-  });
+  artistInfo.external_urls &&
+    Object.keys(artistInfo.external_urls).forEach((platform) => {
+      const link = document.createElement("a");
+      link.href = artistInfo.external_urls[platform];
+      link.target = "_blank";
+      link.textContent =
+        platform === "spotify" ? "Follow Artist on Spotify" : platform;
+      socialLinks.appendChild(link);
+    });
 
   artistContainer.appendChild(socialLinks);
 };
@@ -249,7 +250,13 @@ const fetchAlbumTracks = async (albumId, trackListContainer) => {
   );
 };
 
-const renderTrackList = (tracks, trackListContainer, albumCoverUrl, releaseDate, totalTracks) => {
+const renderTrackList = (
+  tracks,
+  trackListContainer,
+  albumCoverUrl,
+  releaseDate,
+  totalTracks
+) => {
   const trackList = document.createElement("ul");
   trackList.classList.add("track-list");
 
@@ -365,5 +372,11 @@ function updateHeartedArtists(artistId, hearted) {
   localStorage.setItem("heartedArtists", JSON.stringify(heartedArtists));
 }
 
-renderPage();
+const toggleLightMode = () => {
+  document.body.classList.toggle('light-mode');
+};
 
+const toggleButton = document.getElementById('toggleButton');
+toggleButton.addEventListener('click', toggleLightMode);
+
+renderPage();
