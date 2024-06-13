@@ -12,8 +12,20 @@ const artistData = [
 ];
 
 let data = {};
+const artistCache = new Map();
+const debounceTimeout = 300;
+let debounceTimer;
 
-const requestToken = async () => {
+const showError = (message) => {
+  const errorMessage = document.getElementById("error-message");
+  errorMessage.textContent = message;
+  errorMessage.classList.remove("hidden");
+  setTimeout(() => {
+    errorMessage.classList.add("hidden");
+  }, 3000);
+};
+
+const requestToken = async (retryCount = 3) => {
   try {
     const response = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
@@ -29,7 +41,11 @@ const requestToken = async () => {
     console.log(data);
   } catch (error) {
     console.error('Error fetching token:', error);
-    alert('Failed to fetch token. Please try again later.');
+    if (retryCount > 0) {
+      await requestToken(retryCount - 1);
+    } else {
+      showError('Failed to fetch token. Please try again later.');
+    }
   }
 };
 
@@ -37,9 +53,14 @@ const renderPage = async () => {
   await requestToken();
 
   artistData.forEach(async (artist) => {
-    const artistInfo = await fetchArtist(artist.id);
-    if (artistInfo) {
-      renderArtist(artist, artistInfo);
+    if (artistCache.has(artist.id)) {
+      renderArtist(artist, artistCache.get(artist.id));
+    } else {
+      const artistInfo = await fetchArtist(artist.id);
+      if (artistInfo) {
+        artistCache.set(artist.id, artistInfo);
+        renderArtist(artist, artistInfo);
+      }
     }
   });
 
@@ -47,7 +68,7 @@ const renderPage = async () => {
   searchButton.addEventListener("click", searchArtist);
 };
 
-const fetchArtist = async (artistId) => {
+const fetchArtist = async (artistId, retryCount = 3) => {
   try {
     const response = await fetch(
       `https://api.spotify.com/v1/artists/${artistId}`,
@@ -63,7 +84,12 @@ const fetchArtist = async (artistId) => {
     return await response.json();
   } catch (error) {
     console.error(`Error fetching artist ${artistId}:`, error);
-    return null;
+    if (retryCount > 0) {
+      return await fetchArtist(artistId, retryCount - 1);
+    } else {
+      showError('Failed to fetch artist data. Please try again later.');
+      return null;
+    }
   }
 };
 
@@ -113,6 +139,7 @@ const fetchArtistGenre = async (artistId, artistContainer) => {
     artistContainer.appendChild(socialLinks);
   } catch (error) {
     console.error(`Error fetching genre for artist ID ${artistId}:`, error);
+    showError('Failed to fetch artist genre. Please try again later.');
   }
 };
 
@@ -192,6 +219,7 @@ const showAlbumDropdown = async (artistId, artistContainer) => {
     renderAlbumDropdown(artistAlbums.items, artistId, albumDropdown, artistContainer);
   } catch (error) {
     console.error(`Error fetching albums for artist ID ${artistId}:`, error);
+    showError('Failed to fetch albums. Please try again later.');
   }
 };
 
@@ -219,7 +247,7 @@ const renderAlbumDropdown = (albums, artistId, albumDropdown, artistContainer) =
   artistContainer.appendChild(albumDropdown);
 };
 
-const fetchAlbumTracks = async (albumId, trackListContainer) => {
+const fetchAlbumTracks = async (albumId, trackListContainer, retryCount = 3) => {
   try {
     const response = await fetch(
       `https://api.spotify.com/v1/albums/${albumId}/tracks`,
@@ -255,6 +283,11 @@ const fetchAlbumTracks = async (albumId, trackListContainer) => {
     );
   } catch (error) {
     console.error(`Error fetching tracks for album ID ${albumId}:`, error);
+    if (retryCount > 0) {
+      await fetchAlbumTracks(albumId, trackListContainer, retryCount - 1);
+    } else {
+      showError('Failed to fetch album tracks. Please try again later.');
+    }
   }
 };
 
@@ -301,33 +334,37 @@ const renderTrackList = (
 const searchInput = document.getElementById("searchInput");
 const suggestionsContainer = document.getElementById("suggestions");
 
-searchInput.addEventListener("input", async () => {
-  const searchTerm = searchInput.value.trim();
-  if (searchTerm) {
-    try {
-      const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${searchTerm}&type=artist&limit=5`,
-        {
-          headers: { Authorization: `Bearer ${data.access_token}` },
+searchInput.addEventListener("input", () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(async () => {
+    const searchTerm = searchInput.value.trim();
+    if (searchTerm) {
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/search?q=${searchTerm}&type=artist&limit=5`,
+          {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to search artists with status ${response.status}`);
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`Failed to search artists with status ${response.status}`);
+        const searchResults = await response.json();
+        if (searchResults.artists && searchResults.artists.items.length > 0) {
+          displaySuggestions(searchResults.artists.items);
+        } else {
+          clearSuggestions();
+        }
+      } catch (error) {
+        console.error(`Error searching for artists:`, error);
+        showError('Failed to search for artists. Please try again later.');
       }
-
-      const searchResults = await response.json();
-      if (searchResults.artists && searchResults.artists.items.length > 0) {
-        displaySuggestions(searchResults.artists.items);
-      } else {
-        clearSuggestions();
-      }
-    } catch (error) {
-      console.error(`Error searching for artists:`, error);
+    } else {
+      clearSuggestions();
     }
-  } else {
-    clearSuggestions();
-  }
+  }, debounceTimeout);
 });
 
 const displaySuggestions = (artists) => {
@@ -374,7 +411,7 @@ const searchArtist = async () => {
       }
     } catch (error) {
       console.error(`Error searching for artist:`, error);
-      alert("Failed to search for the artist. Please try again later.");
+      showError('Failed to search for the artist. Please try again later.');
     }
   }
 };
@@ -396,6 +433,7 @@ const fetchTopTracks = async (artistId, artistContainer) => {
     renderTopTracksDropdown(topTracks.tracks, artistContainer);
   } catch (error) {
     console.error(`Error fetching top tracks for artist ID ${artistId}:`, error);
+    showError('Failed to fetch top tracks. Please try again later.');
   }
 };
 
@@ -424,7 +462,7 @@ const renderTopTracksDropdown = (tracks, artistContainer) => {
   artistContainer.appendChild(topTracksDropdown);
 };
 
-const fetchTrack = async (trackId) => {
+const fetchTrack = async (trackId, retryCount = 3) => {
   try {
     const response = await fetch(
       `https://api.spotify.com/v1/tracks/${trackId}`,
@@ -440,7 +478,12 @@ const fetchTrack = async (trackId) => {
     return await response.json();
   } catch (error) {
     console.error(`Error fetching track ${trackId}:`, error);
-    return null;
+    if (retryCount > 0) {
+      return await fetchTrack(trackId, retryCount - 1);
+    } else {
+      showError('Failed to fetch track data. Please try again later.');
+      return null;
+    }
   }
 };
 
@@ -480,6 +523,7 @@ const fetchAllAlbums = async (artistId, artistContainer) => {
     renderAllAlbumsDropdown(albums.items, artistContainer);
   } catch (error) {
     console.error(`Error fetching albums for artist ID ${artistId}:`, error);
+    showError('Failed to fetch albums. Please try again later.');
   }
 };
 
@@ -526,6 +570,7 @@ const fetchRelatedArtists = async (artistId, artistContainer) => {
     renderRelatedArtistsDropdown(relatedArtists.artists, artistContainer);
   } catch (error) {
     console.error(`Error fetching related artists for artist ID ${artistId}:`, error);
+    showError('Failed to fetch related artists. Please try again later.');
   }
 };
 

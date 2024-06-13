@@ -576,3 +576,19 @@ button:active {
 .light-mode .all-albums-container li {
   color: #666;
 }
+
+.hidden {
+  display: none;
+}
+
+#error-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+}
