@@ -157,14 +157,17 @@ const renderArtist = (artist, artistInfo) => {
 
   content.appendChild(artistContainer);
 
-  artistImage.addEventListener("click", () => showAlbumDropdown(artist.id));
+  artistImage.addEventListener("click", () => showAlbumDropdown(artist.id, artistContainer));
 
   fetchArtistGenre(artist.id, artistContainer);
+  fetchTopTracks(artist.id, artistContainer);
+  fetchAllAlbums(artist.id, artistContainer);
+  fetchRelatedArtists(artist.id, artistContainer);
 };
 
-const showAlbumDropdown = async (artistId) => {
+const showAlbumDropdown = async (artistId, artistContainer) => {
   try {
-    clearAlbumDropdown();
+    clearAlbumDropdown(artistContainer);
 
     const albumDropdown = document.createElement("select");
     albumDropdown.id = `albumDropdown-${artistId}`;
@@ -186,13 +189,13 @@ const showAlbumDropdown = async (artistId) => {
     }
 
     const artistAlbums = await response.json();
-    renderAlbumDropdown(artistAlbums.items, artistId, albumDropdown);
+    renderAlbumDropdown(artistAlbums.items, artistId, albumDropdown, artistContainer);
   } catch (error) {
     console.error(`Error fetching albums for artist ID ${artistId}:`, error);
   }
 };
 
-const renderAlbumDropdown = (albums, artistId, albumDropdown) => {
+const renderAlbumDropdown = (albums, artistId, albumDropdown, artistContainer) => {
   albums.forEach((album) => {
     const option = document.createElement("option");
     option.value = album.id;
@@ -202,9 +205,6 @@ const renderAlbumDropdown = (albums, artistId, albumDropdown) => {
 
   albumDropdown.addEventListener("change", async (event) => {
     const selectedAlbumId = event.target.value;
-    const artistContainer = content.querySelector(
-      `[data-artist="${artistId}"]`
-    );
     const trackListContainer = artistContainer.querySelector(
       ".track-list-container"
     );
@@ -212,7 +212,6 @@ const renderAlbumDropdown = (albums, artistId, albumDropdown) => {
     await fetchAlbumTracks(selectedAlbumId, trackListContainer);
   });
 
-  const artistContainer = content.querySelector(`[data-artist="${artistId}"]`);
   const trackListContainer = document.createElement("div");
   trackListContainer.classList.add("track-list-container");
   artistContainer.appendChild(trackListContainer);
@@ -285,6 +284,14 @@ const renderTrackList = (
   tracks.forEach((track, index) => {
     const listItem = document.createElement("li");
     listItem.textContent = `${index + 1}. ${track.name}`;
+
+    if (track.preview_url) {
+      const audioPreview = document.createElement("audio");
+      audioPreview.src = track.preview_url;
+      audioPreview.controls = true;
+      listItem.appendChild(audioPreview);
+    }
+
     trackList.appendChild(listItem);
   });
 
@@ -372,6 +379,181 @@ const searchArtist = async () => {
   }
 };
 
+const fetchTopTracks = async (artistId, artistContainer) => {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`,
+      {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch top tracks with status ${response.status}`);
+    }
+
+    const topTracks = await response.json();
+    renderTopTracksDropdown(topTracks.tracks, artistContainer);
+  } catch (error) {
+    console.error(`Error fetching top tracks for artist ID ${artistId}:`, error);
+  }
+};
+
+const renderTopTracksDropdown = (tracks, artistContainer) => {
+  const topTracksDropdown = document.createElement("select");
+  topTracksDropdown.classList.add("top-tracks-dropdown");
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Top Tracks";
+  topTracksDropdown.appendChild(defaultOption);
+
+  tracks.forEach((track) => {
+    const option = document.createElement("option");
+    option.value = track.id;
+    option.textContent = track.name;
+    topTracksDropdown.appendChild(option);
+  });
+
+  topTracksDropdown.addEventListener("change", async (event) => {
+    const selectedTrackId = event.target.value;
+    const trackInfo = await fetchTrack(selectedTrackId);
+    if (trackInfo) {
+      renderTrackInfo(trackInfo, artistContainer);
+    }
+  });
+
+  artistContainer.appendChild(topTracksDropdown);
+};
+
+const fetchTrack = async (trackId) => {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/tracks/${trackId}`,
+      {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch track with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching track ${trackId}:`, error);
+    return null;
+  }
+};
+
+const renderTrackInfo = (track, artistContainer) => {
+  const trackInfoContainer = artistContainer.querySelector(".track-info-container") || document.createElement("div");
+  trackInfoContainer.classList.add("track-info-container");
+  trackInfoContainer.innerHTML = `
+    <h4>${track.name}</h4>
+    <p>Album: ${track.album.name}</p>
+    <p>Duration: ${(track.duration_ms / 60000).toFixed(2)} minutes</p>
+  `;
+
+  if (track.preview_url) {
+    const audioPreview = document.createElement("audio");
+    audioPreview.src = track.preview_url;
+    audioPreview.controls = true;
+    trackInfoContainer.appendChild(audioPreview);
+  }
+
+  artistContainer.appendChild(trackInfoContainer);
+};
+
+const fetchAllAlbums = async (artistId, artistContainer) => {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists/${artistId}/albums?market=US`,
+      {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch albums with status ${response.status}`);
+    }
+
+    const albums = await response.json();
+    renderAllAlbumsDropdown(albums.items, artistContainer);
+  } catch (error) {
+    console.error(`Error fetching albums for artist ID ${artistId}:`, error);
+  }
+};
+
+const renderAllAlbumsDropdown = (albums, artistContainer) => {
+  const allAlbumsDropdown = document.createElement("select");
+  allAlbumsDropdown.classList.add("all-albums-dropdown");
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "All Albums";
+  allAlbumsDropdown.appendChild(defaultOption);
+
+  albums.forEach((album) => {
+    const option = document.createElement("option");
+    option.value = album.id;
+    option.textContent = album.name;
+    allAlbumsDropdown.appendChild(option);
+  });
+
+  allAlbumsDropdown.addEventListener("change", async (event) => {
+    const selectedAlbumId = event.target.value;
+    const albumTracksContainer = artistContainer.querySelector(".album-tracks-container") || document.createElement("div");
+    albumTracksContainer.classList.add("album-tracks-container");
+    clearAlbumTracks(albumTracksContainer);
+    await fetchAlbumTracks(selectedAlbumId, albumTracksContainer);
+    artistContainer.appendChild(albumTracksContainer);
+  });
+
+  artistContainer.appendChild(allAlbumsDropdown);
+};
+
+const fetchRelatedArtists = async (artistId, artistContainer) => {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists/${artistId}/related-artists`,
+      {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch related artists with status ${response.status}`);
+    }
+
+    const relatedArtists = await response.json();
+    renderRelatedArtistsDropdown(relatedArtists.artists, artistContainer);
+  } catch (error) {
+    console.error(`Error fetching related artists for artist ID ${artistId}:`, error);
+  }
+};
+
+const renderRelatedArtistsDropdown = (artists, artistContainer) => {
+  const relatedArtistsDropdown = document.createElement("select");
+  relatedArtistsDropdown.classList.add("related-artists-dropdown");
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Related Artists";
+  relatedArtistsDropdown.appendChild(defaultOption);
+
+  artists.forEach((artist) => {
+    const option = document.createElement("option");
+    option.value = artist.id;
+    option.textContent = artist.name;
+    relatedArtistsDropdown.appendChild(option);
+  });
+
+  relatedArtistsDropdown.addEventListener("change", async (event) => {
+    const selectedArtistId = event.target.value;
+    const artistInfo = await fetchArtist(selectedArtistId);
+    if (artistInfo) {
+      renderArtist({ id: selectedArtistId, name: artistInfo.name }, artistInfo);
+    }
+  });
+
+  artistContainer.appendChild(relatedArtistsDropdown);
+};
+
 const content = document.getElementById("content");
 
 function isArtistHearted(artistId) {
@@ -404,7 +586,7 @@ const resetArtistContainer = (artistId) => {
   const heartIcon = artistContainer.querySelector(".heart-icon");
   heartIcon.innerHTML = isArtistHearted(artistId) ? "❤️" : "🤍";
   heartIcon.classList.remove("pulsate");
-  clearAlbumDropdown();
+  clearAlbumDropdown(artistContainer);
   clearTrackList(artistContainer.querySelector(".track-list-container"));
 };
 
@@ -424,8 +606,8 @@ const toggleHeart = (artistId) => {
   }
 };
 
-const clearAlbumDropdown = () => {
-  const albumDropdowns = content.querySelectorAll(
+const clearAlbumDropdown = (artistContainer) => {
+  const albumDropdowns = artistContainer.querySelectorAll(
     "select[id^='albumDropdown-']"
   );
   albumDropdowns.forEach((dropdown) => dropdown.remove());
@@ -440,6 +622,12 @@ const clearTrackList = (trackListContainer) => {
   const existingAlbumCover = trackListContainer.querySelector(".album-cover");
   if (existingAlbumCover) {
     existingAlbumCover.remove();
+  }
+};
+
+const clearAlbumTracks = (albumTracksContainer) => {
+  while (albumTracksContainer.firstChild) {
+    albumTracksContainer.removeChild(albumTracksContainer.firstChild);
   }
 };
 

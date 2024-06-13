@@ -73,8 +73,22 @@ ul {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-  flex: 1 0 21%; /* This makes the artist containers take up about 21% of the width each */
+  height: 400px; /* Set a fixed height */
+  width: 300px; /* Set a fixed width */
   box-sizing: border-box; /* Ensures padding and border are included in the width calculation */
+  overflow-y: auto; /* Allow vertical scrolling if content overflows */
+}
+
+/* Hide scrollbar for WebKit browsers */
+.artist-container::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* Optional: just make scrollbar invisible */
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.artist-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 .light-mode .artist-container {
@@ -159,8 +173,9 @@ ul {
   position: relative;
   width: 100%;
   max-width: 300px;
-  margin-top: 20px;
+  margin-top: 150px; /* Adjusted margin to place it below the header */
   transition: background-color 0.3s, color 0.3s;
+  z-index: 1; /* Ensure it stays above the artist containers */
 }
 
 #searchInput {
@@ -355,7 +370,10 @@ button:active {
   transform: scale(1.1);
 }
 
-.album-dropdown {
+.album-dropdown,
+.related-artists-dropdown,
+.top-tracks-dropdown,
+.all-albums-dropdown {
   margin-top: 10px;
   padding: 10px;
   border-radius: 5px;
@@ -363,12 +381,54 @@ button:active {
   background-color: black;
   color: #00ff00;
   animation: dropdownSlideIn 0.5s ease-in-out;
+  text-align: center;
+  text-align-last: center;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box; /* Ensures padding and border are included in the width calculation */
 }
 
-.light-mode .album-dropdown {
+.light-mode .album-dropdown,
+.light-mode .related-artists-dropdown,
+.light-mode .top-tracks-dropdown,
+.light-mode .all-albums-dropdown {
   background-color: white;
   color: #333;
   border: 1px solid #333;
+}
+
+.track-info-container {
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  text-align: left;
+  color: #ccc;
+}
+
+.light-mode .track-info-container {
+  background: rgba(255, 255, 255, 0.7);
+  color: #333;
+  box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
+}
+
+.track-info-container h4 {
+  margin-top: 0;
+  color: #00ff00;
+}
+
+.light-mode .track-info-container h4 {
+  color: #444;
+}
+
+.track-info-container p {
+  margin: 5px 0;
+}
+
+.track-info-container audio {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .tooltip {
@@ -464,4 +524,55 @@ button:active {
   height: 100%;
   pointer-events: none;
   z-index: -1;
+}
+
+.top-tracks-container,
+.related-artists-container,
+.all-albums-container {
+  margin-top: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.light-mode .top-tracks-container,
+.light-mode .related-artists-container,
+.light-mode .all-albums-container {
+  background: rgba(255, 255, 255, 0.7);
+  color: #333;
+  box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
+}
+
+.top-tracks-container h3,
+.related-artists-container h3,
+.all-albums-container h3 {
+  margin-top: 0;
+  color: #00ff00;
+}
+
+.light-mode .top-tracks-container h3,
+.light-mode .related-artists-container h3,
+.light-mode .all-albums-container h3 {
+  color: #444;
+}
+
+.top-tracks-container ul,
+.related-artists-container ul,
+.all-albums-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.top-tracks-container li,
+.related-artists-container li,
+.all-albums-container li {
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.light-mode .top-tracks-container li,
+.light-mode .related-artists-container li,
+.light-mode .all-albums-container li {
+  color: #666;
 }
