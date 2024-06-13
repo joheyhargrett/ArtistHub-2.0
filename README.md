@@ -37,6 +37,20 @@ I plan to add the following features to ArtistHub in future updates:
 - **Spotify API:** Fetching artist, album, and track information.
 - **particles.js:** Dynamic particle background effect.
 
+## Installation and Setup
+
+To get a local copy up and running, follow these steps:
+
+1. **Clone the repository:**
+    ```sh
+    git clone git@github.com:joheyhargrett/ArtistHub-2.0.git
+    ```
+2. **Navigate to the project directory:**
+    ```sh
+    cd ArtistHub-2.0
+    ```
+3. **Open the `index.html` file in your web browser.**
+
 ## How to Use
 
 1. **Open the `index.html` file in your web browser.**
@@ -45,4 +59,25 @@ I plan to add the following features to ArtistHub in future updates:
 4. **Like or unlike artists by clicking the heart icon.**
 5. **Toggle between dark mode and light mode using the toggle button.**
 6. **Enjoy the interactive UI, hover effects, and particle background effect.**
-7. 
+
+## Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+
+1. **Fork the Project**
+2. **Create your Feature Branch (`git checkout -b feature/AmazingFeature`)**
+3. **Commit your Changes (`git commit -m 'Add some AmazingFeature'`)**
+4. **Push to the Branch (`git push origin feature/AmazingFeature`)**
+5. **Open a Pull Request**
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Johey Hargrett - [joheyhargrett@gmail.com](mailto:joheyhargrett@gmail.com)
+
+Project Link: [https://github.com/joheyhargrett/ArtistHub-2.0](https://github.com/joheyhargrett/ArtistHub-2.0)
