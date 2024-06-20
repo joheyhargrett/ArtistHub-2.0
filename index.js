@@ -25,6 +25,20 @@ const showError = (message) => {
   }, 3000);
 };
 
+const showLoading = () => {
+  const loadingSpinner = document.getElementById('loading-spinner');
+  if (loadingSpinner) {
+    loadingSpinner.classList.remove('hidden');
+  }
+};
+
+const hideLoading = () => {
+  const loadingSpinner = document.getElementById('loading-spinner');
+  if (loadingSpinner) {
+    loadingSpinner.classList.add('hidden');
+  }
+};
+
 const requestToken = async (retryCount = 3) => {
   try {
     const response = await fetch("https://accounts.spotify.com/api/token", {
@@ -51,38 +65,44 @@ const requestToken = async (retryCount = 3) => {
 
 const renderPage = async () => {
   await requestToken();
+  renderArtists();
+  setupSearch();
+};
 
-  artistData.forEach(async (artist) => {
-    if (artistCache.has(artist.id)) {
-      renderArtist(artist, artistCache.get(artist.id));
-    } else {
-      const artistInfo = await fetchArtist(artist.id);
-      if (artistInfo) {
-        artistCache.set(artist.id, artistInfo);
-        renderArtist(artist, artistInfo);
-      }
+const renderArtists = async () => {
+  for (const artist of artistData) {
+    await renderArtistData(artist);
+  }
+};
+
+const renderArtistData = async (artist) => {
+  if (artistCache.has(artist.id)) {
+    renderArtist(artist, artistCache.get(artist.id));
+  } else {
+    const artistInfo = await fetchArtist(artist.id);
+    if (artistInfo) {
+      artistCache.set(artist.id, artistInfo);
+      renderArtist(artist, artistInfo);
     }
-  });
+  }
+};
 
+const setupSearch = () => {
   const searchButton = document.getElementById("searchButton");
   searchButton.addEventListener("click", searchArtist);
 };
 
 const fetchArtist = async (artistId, retryCount = 3) => {
   try {
-    const response = await fetch(
+    showLoading();
+    const response = await makeFetchRequest(
       `https://api.spotify.com/v1/artists/${artistId}`,
-      {
-        headers: { Authorization: `Bearer ${data.access_token}` },
-      }
+      { Authorization: `Bearer ${data.access_token}` }
     );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch artist with status ${response.status}`);
-    }
-
-    return await response.json();
+    hideLoading();
+    return await handleFetchResponse(response);
   } catch (error) {
+    hideLoading();
     console.error(`Error fetching artist ${artistId}:`, error);
     if (retryCount > 0) {
       return await fetchArtist(artistId, retryCount - 1);
@@ -91,6 +111,93 @@ const fetchArtist = async (artistId, retryCount = 3) => {
       return null;
     }
   }
+};
+
+const makeFetchRequest = async (url, headers) => {
+  return await fetch(url, { headers });
+};
+
+const handleFetchResponse = async (response) => {
+  if (!response.ok) {
+    throw new Error(`Failed to fetch with status ${response.status}`);
+  }
+  return await response.json();
+};
+
+const renderArtist = (artist, artistInfo) => {
+  const artistContainer = createArtistContainer(artist, artistInfo);
+
+  content.appendChild(artistContainer);
+
+  fetchArtistGenre(artist.id, artistContainer);
+  fetchTopTracks(artist.id, artistContainer);
+  fetchAllAlbums(artist.id, artistContainer);
+  fetchRelatedArtists(artist.id, artistContainer);
+};
+
+const createArtistContainer = (artist, artistInfo) => {
+  const artistContainer = document.createElement("div");
+  artistContainer.classList.add("artist-container");
+
+  const artistImage = createArtistImage(artistInfo);
+  const artistName = createArtistName(artist);
+  const heartIcon = createHeartIcon(artist);
+  const resetButton = createResetButton(artist);
+  const genresContainer = createGenresContainer();
+
+  artistContainer.appendChild(artistImage);
+  artistContainer.appendChild(artistName);
+  artistContainer.appendChild(heartIcon);
+  artistContainer.appendChild(resetButton);
+  artistContainer.appendChild(genresContainer);
+  artistContainer.setAttribute("data-artist", artist.id);
+
+  artistImage.addEventListener("click", () => showAlbumDropdown(artist.id, artistContainer));
+
+  return artistContainer;
+};
+
+const createArtistImage = (artistInfo) => {
+  const artistImage = document.createElement("img");
+  artistImage.src = artistInfo.images[1].url;
+  return artistImage;
+};
+
+const createArtistName = (artist) => {
+  const artistName = document.createElement("h2");
+  artistName.textContent = artist.name;
+  return artistName;
+};
+
+const createHeartIcon = (artist) => {
+  const heartIcon = document.createElement("span");
+  heartIcon.className = "heart-icon tooltip";
+  heartIcon.innerHTML = isArtistHearted(artist.id) ? "❤️" : "🤍";
+  if (isArtistHearted(artist.id)) {
+    heartIcon.classList.add("pulsate");
+  }
+  const tooltipText = document.createElement("span");
+  tooltipText.className = "tooltiptext";
+  tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
+  heartIcon.appendChild(tooltipText);
+  heartIcon.addEventListener("click", () => {
+    toggleHeart(artist.id);
+    tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
+  });
+  return heartIcon;
+};
+
+const createResetButton = (artist) => {
+  const resetButton = document.createElement("button");
+  resetButton.textContent = "Reset";
+  resetButton.addEventListener("click", () => resetArtistContainer(artist.id));
+  return resetButton;
+};
+
+const createGenresContainer = () => {
+  const genresContainer = document.createElement("div");
+  genresContainer.classList.add("genres");
+  return genresContainer;
 };
 
 const fetchArtistGenre = async (artistId, artistContainer) => {
@@ -141,55 +248,6 @@ const fetchArtistGenre = async (artistId, artistContainer) => {
     console.error(`Error fetching genre for artist ID ${artistId}:`, error);
     showError('Failed to fetch artist genre. Please try again later.');
   }
-};
-
-const renderArtist = (artist, artistInfo) => {
-  const artistContainer = document.createElement("div");
-  artistContainer.classList.add("artist-container");
-
-  const artistImage = document.createElement("img");
-  artistImage.src = artistInfo.images[1].url;
-
-  const artistName = document.createElement("h2");
-  artistName.textContent = artist.name;
-
-  const heartIcon = document.createElement("span");
-  heartIcon.className = "heart-icon tooltip";
-  heartIcon.innerHTML = isArtistHearted(artist.id) ? "❤️" : "🤍";
-  if (isArtistHearted(artist.id)) {
-    heartIcon.classList.add("pulsate");
-  }
-  const tooltipText = document.createElement("span");
-  tooltipText.className = "tooltiptext";
-  tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
-  heartIcon.appendChild(tooltipText);
-  heartIcon.addEventListener("click", () => {
-    toggleHeart(artist.id);
-    tooltipText.textContent = isArtistHearted(artist.id) ? "Unlike" : "Like";
-  });
-
-  const resetButton = document.createElement("button");
-  resetButton.textContent = "Reset";
-  resetButton.addEventListener("click", () => resetArtistContainer(artist.id));
-
-  const genresContainer = document.createElement("div");
-  genresContainer.classList.add("genres");
-
-  artistContainer.appendChild(artistImage);
-  artistContainer.appendChild(artistName);
-  artistContainer.appendChild(heartIcon);
-  artistContainer.appendChild(resetButton);
-  artistContainer.appendChild(genresContainer);
-  artistContainer.setAttribute("data-artist", artist.id);
-
-  content.appendChild(artistContainer);
-
-  artistImage.addEventListener("click", () => showAlbumDropdown(artist.id, artistContainer));
-
-  fetchArtistGenre(artist.id, artistContainer);
-  fetchTopTracks(artist.id, artistContainer);
-  fetchAllAlbums(artist.id, artistContainer);
-  fetchRelatedArtists(artist.id, artistContainer);
 };
 
 const showAlbumDropdown = async (artistId, artistContainer) => {

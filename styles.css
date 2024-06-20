@@ -553,7 +553,7 @@ button:active {
 
 .light-mode .top-tracks-container h3,
 .light-mode .related-artists-container h3,
-.light-mode .all-albums-container h3 {
+.all-albums-container h3 {
   color: #444;
 }
 
@@ -588,6 +588,18 @@ button:active {
   transform: translateX(-50%);
   background-color: rgba(255, 0, 0, 0.8);
   color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+#loading-spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
   padding: 10px;
   border-radius: 5px;
   z-index: 1000;
